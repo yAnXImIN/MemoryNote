@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>记忆笔记</title>
+    <script src="http://libs.baidu.com/jquery/1.9.1/jquery.min.js"></script>
+    <script src="js/function.js"></script>
+    <script src="http://cdn.bootcss.com/jqueryui/1.12.0/jquery-ui.min.js"></script>
+    <link href="http://cdn.bootcss.com/jqueryui/1.12.0/jquery-ui.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/buttons.css">
+
+    <script>
+        //接口服务器地址
+        baseUrl = "http://10.108.16.210:8080/MemoryNote/servlet/AddNewNote?"
+        resizeAction={
+            stop:function(e,ui){
+                //获取操纵对象
+                var jObject = ui.helper;
+                //向服务修改笔记位置信息
+                sendPositionMessage($(this));
+            },
+        }
+         initHtml =  function(){
+             $.get(baseUrl+"method=select",function(data,status){
+                 var list = data
+                 for(var a in list){
+
+                     $("body").append("<div class='transparent_class note lastOne' style='display:none'><label></label><img src='img/pencil.png' class='update' hidden><img src='img/delete.png' class='delete' hidden><input hidden noteId=''/></div>")
+                     $(".lastOne").css({
+                         'height': list[a].height,
+                         'width':list[a].width,
+                         'top': list[a].posY,
+                         'left':list[a].posX,
+                         'background-color':list[a].BGColour,
+                         'font-size':list[a].contentTextSize,
+                         'position':"absolute"
+                     })
+                     if(list[a].content==null||list[a].content=="")
+                         $("label:last").html("输入一些东西吧")
+                     else
+                         $("label:last").html(list[a].content)
+                     $(".lastOne").resizable(resizeAction).draggable(resizeAction)
+                     $(".lastOne").mouseover(divMouseOver).mouseleave(divMouseLeave).mousedown(noteMousedown)
+                     $(".lastOne").children("input:hidden").attr("value",list[a].id)
+                     $(".lastOne").show(1500);
+                     $(".lastOne").removeClass("lastOne");
+                 }
+             })
+             $('.transparent_class').mousedown(noteMousedown)
+             $('.transparent_class').resizable(resizeAction).draggable(resizeAction)
+             $(".transparent_class").mouseover(divMouseOver).mouseleave(divMouseLeave)
+         }
+        $("document").ready(function(){
+            initHtml();
+            $("#createNew").click(sendAddNewMessage);
+            $("#createNewButton").click(sendAddNewMessage);
+        });
+    </script>
+    <link href="css/style.css" rel="stylesheet" type="text/css">
+    <style>
+        .transparent_class {
+            filter:alpha(opacity=90);
+            -moz-opacity:0.9;
+            -khtml-opacity: 0.9;
+            opacity: 0.9;
+        }
+        .up_class{
+            z-index: 9999;
+        }
+        .auto_class{
+            z-index: auto;
+        }
+        .delete{
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <label>content</label><input type="text" id="contentInput">
+    <label>height</label><input type="number" id="heightInput">
+    <label>width</label><input type="number" id="widthInput">
+    <label>posX</label><input type="number" id="posX">
+    <label>posY</label><input type="number" id="posY">
+    <label>BGColour</label><input type="color" id="BGColour" value="#ff0080">
+    <label>contentTextSize</label><input type="text" id="contentTextSize">
+    <input type="button" id="createNew" value="添加">
+    <!--<div class="transparent_class note" style="height: 240px;width: 300px;background-color: greenyellow;position: absolute;left:50px;top:150px">-->
+        <!--<label>这个属性定义建立元素布局所用的定位机制。任何元素都可以定位</label>-->
+        <!--<img src="img/pencil.png" class="update" hidden>-->
+        <!--<img src="img/delete.png" class="delete" hidden>-->
+    <!--</div>-->
+    <button class="button button-glow button-circle button-action button-jumbo" style="position: absolute;bottom: 50px;right: 50px" id="createNewButton">
+        <bold>+</bold>
+    </button>
+
+</body>
+</html>
